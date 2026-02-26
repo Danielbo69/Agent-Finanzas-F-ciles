@@ -40,7 +40,7 @@ export default function Dashboard() {
   // Últimas transacciones
   const recentTransactions = transactions
     .filter((t) => !t.isVoided)
-    .sort((a, b) => b.date.getTime() - a.date.getTime())
+    // .sort((a, b) => b.date.getTime() - a.date.getTime())
     .slice(0, 5);
 
   const formatCurrency = (amount: number) => {

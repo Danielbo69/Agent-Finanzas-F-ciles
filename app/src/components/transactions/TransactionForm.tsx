@@ -21,6 +21,7 @@ interface TransactionFormProps {
 export default function TransactionForm({ onSuccess }: TransactionFormProps) {
   const { accounts, categories, addTransaction } = useFinanceStore();
   
+
   const [activeTab, setActiveTab] = useState<TransactionType>('expense');
   const [formData, setFormData] = useState({
     amount: '',
@@ -179,7 +180,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
             <SelectContent>
               {activeTab === 'expense' && (
                 <>
-                  <SelectItem value="" disabled>Gastos en efectivo o débito</SelectItem>
+                  <SelectItem value="__section_cash_debit" disabled>Gastos en efectivo o débito</SelectItem>
                   {cashAndBankAccounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       <div className="flex items-center gap-2">
@@ -191,7 +192,7 @@ export default function TransactionForm({ onSuccess }: TransactionFormProps) {
                       </div>
                     </SelectItem>
                   ))}
-                  <SelectItem value="" disabled>Gastos con tarjeta de crédito</SelectItem>
+                  <SelectItem value="__section_credit_card" disabled>Gastos con tarjeta de crédito</SelectItem>
                   {creditCardAccounts.map((account) => (
                     <SelectItem key={account.id} value={account.id}>
                       <div className="flex items-center gap-2">

@@ -1,12 +1,12 @@
 /* eslint-disable react-hooks/static-components */
 import { useState } from 'react';
-import { 
-  LayoutDashboard, 
-  Wallet, 
-  Receipt, 
-  PieChart, 
-  Target, 
-  FileText, 
+import {
+  LayoutDashboard,
+  Wallet,
+  Receipt,
+  PieChart,
+  Target,
+  FileText,
   Plus,
   Menu,
   Bell,
@@ -78,7 +78,7 @@ function App() {
           Finanzas Fáciles
         </h1>
       </div>
-      
+
       <nav className="flex-1 p-4 space-y-1">
         {navigationItems.map((item) => {
           const Icon = item.icon;
@@ -89,11 +89,10 @@ function App() {
                 setCurrentView(item.id);
                 setIsMobileMenuOpen(false);
               }}
-              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                currentView === item.id
-                  ? 'bg-primary text-primary-foreground'
-                  : 'hover:bg-muted text-muted-foreground hover:text-foreground'
-              }`}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${currentView === item.id
+                ? 'bg-primary text-primary-foreground'
+                : 'hover:bg-muted text-muted-foreground hover:text-foreground'
+                }`}
             >
               <Icon className="h-5 w-5" />
               <span className="font-medium">{item.label}</span>
@@ -101,7 +100,7 @@ function App() {
           );
         })}
       </nav>
-      
+
       <div className="p-4 border-t space-y-2">
         <div className="flex items-center gap-3 px-4 py-2">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
@@ -112,7 +111,7 @@ function App() {
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
         </div>
-        
+
         <div className="flex gap-2">
           <Button
             variant="ghost"
@@ -182,11 +181,11 @@ function App() {
                 {navigationItems.find((item) => item.id === currentView)?.label}
               </h2>
               <p className="text-muted-foreground">
-                {new Date().toLocaleDateString('es-CL', { 
-                  weekday: 'long', 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric' 
+                {new Date().toLocaleDateString('es-CL', {
+                  weekday: 'long',
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric'
                 })}
               </p>
             </div>
@@ -206,10 +205,12 @@ function App() {
 
           {/* Mobile Add Button */}
           <div className="lg:hidden fixed bottom-6 right-6 z-30">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="rounded-full shadow-lg"
-              onClick={() => setIsAddTransactionOpen(true)}
+              onClick={() => {
+                setIsAddTransactionOpen(!isAddTransactionOpen);
+              }}
             >
               <Plus className="h-5 w-5" />
             </Button>
