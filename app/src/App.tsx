@@ -227,7 +227,7 @@ function App() {
           <DialogHeader>
             <DialogTitle>Nuevo Movimiento</DialogTitle>
           </DialogHeader>
-          <TransactionForm onSuccess={() => setIsAddTransactionOpen(false)} />
+          <TransactionForm />
         </DialogContent>
       </Dialog>
     </div>
