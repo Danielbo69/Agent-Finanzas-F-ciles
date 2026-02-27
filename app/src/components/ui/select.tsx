@@ -103,6 +103,25 @@ function SelectItem({
   children,
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item>) {
+  const value = (props as any).value;
+
+  // If a SelectItem is rendered with an empty-string value, Radix will throw in runtime.
+  // Render a non-interactive element instead to avoid production crashes while
+  // preserving visual structure (useful when persisted state contains invalid items).
+  if (value === '') {
+    return (
+      <div
+        data-slot="select-item"
+        className={cn(
+          "relative flex w-full items-center gap-2 rounded-sm py-1.5 pr-8 pl-2 text-sm select-none opacity-60",
+          className
+        )}
+      >
+        <span className="select-none">{children}</span>
+      </div>
+    );
+  }
+
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
