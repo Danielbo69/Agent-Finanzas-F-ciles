@@ -76,13 +76,15 @@ export default function Reports() {
   }));
 
   // Transacciones del mes filtrado
+  const toDate = (d: any) => (d instanceof Date ? d : new Date(d));
+
   const monthTransactions = transactions
     .filter((t) => {
-      const tMonth = t.date.getMonth();
-      const tYear = t.date.getFullYear();
+      const tMonth = toDate(t.date).getMonth();
+      const tYear = toDate(t.date).getFullYear();
       return tMonth === selectedMonth && tYear === selectedYear && !t.isVoided;
     })
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+    .sort((a, b) => toDate(b.date).getTime() - toDate(a.date).getTime());
 
   const handlePrint = () => {
     window.print();

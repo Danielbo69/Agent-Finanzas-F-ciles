@@ -756,8 +756,19 @@ export const useFinanceStore = create<FinanceState>()(
         }
       };
     },
-    {
-      name: 'finanzas-faciles-storage'
-    }
+      ({
+        name: 'finanzas-faciles-storage',
+        // Deserialize stored JSON and revive ISO date strings into Date objects
+        // Cast to `any` to avoid mismatched PersistOptions type definitions.
+        deserialize: (str: string) =>
+          JSON.parse(str, (_key, value) => {
+            if (typeof value === 'string') {
+              // ISO 8601 with optional milliseconds and timezone (Z or ±HH:MM)
+              const isoRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?$/;
+              if (isoRegex.test(value)) return new Date(value);
+            }
+            return value;
+          }),
+      } as any)
   )
 );

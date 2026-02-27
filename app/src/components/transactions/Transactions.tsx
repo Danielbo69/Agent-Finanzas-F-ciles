@@ -73,6 +73,8 @@ export default function Transactions() {
   // Filtrar transacciones
   const filteredTransactions = transactions
     .filter((t) => {
+      const toDate = (d: any) => (d instanceof Date ? d : new Date(d));
+      const txDateObj = toDate(t.date);
       // Filtro por búsqueda
       const matchesSearch = 
         t.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,13 +90,16 @@ export default function Transactions() {
         t.toAccountId === filterAccount;
       
       // Filtro por mes
-      const transactionMonth = t.date.getMonth();
-      const transactionYear = t.date.getFullYear();
+      const transactionMonth = txDateObj.getMonth();
+      const transactionYear = txDateObj.getFullYear();
       const matchesMonth = transactionMonth === selectedMonth && transactionYear === selectedYear;
       
       return matchesSearch && matchesType && matchesAccount && matchesMonth;
     })
-    .sort((a, b) => b.date.getTime() - a.date.getTime());
+    .sort((a, b) => {
+      const toDate = (d: any) => (d instanceof Date ? d : new Date(d));
+      return toDate(b.date).getTime() - toDate(a.date).getTime();
+    });
 
   const handleVoid = (id: string) => {
     if (confirm('¿Estás seguro de anular esta transacción? Se creará un registro de auditoría.')) {
