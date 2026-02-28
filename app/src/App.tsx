@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/static-components */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   LayoutDashboard,
   Wallet,
@@ -19,7 +19,12 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useFinanceStore } from '@/store/financeStore';
+import Login from './components/auth/Login';
+import Register from './components/auth/Register';
+import ForgotPassword from './components/auth/ForgotPassword';
+import AuthPage from './components/auth/AuthPage';
 import Dashboard from '@/components/dashboard/Dashboard';
+import Profile from './components/auth/Profile';
 import Accounts from '@/components/accounts/Accounts';
 import Transactions from '@/components/transactions/Transactions';
 import Budgets from '@/components/budgets/Budgets';
@@ -28,7 +33,7 @@ import Reports from '@/components/reports/Reports';
 import TransactionForm from '@/components/transactions/TransactionForm';
 import './App.css';
 
-type ViewType = 'dashboard' | 'accounts' | 'transactions' | 'budgets' | 'goals' | 'reports';
+type ViewType = 'login' | 'register' | 'forgot' | 'dashboard' | 'accounts' | 'transactions' | 'budgets' | 'goals' | 'reports' | 'profile';
 
 function App() {
   const [currentView, setCurrentView] = useState<ViewType>('dashboard');
@@ -36,6 +41,22 @@ function App() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { user, logout } = useFinanceStore();
+  const { isAuthenticated } = useFinanceStore();
+
+  // On mount, if we have a token try to fetch profile and populate store
+  useEffect(() => {
+    const token = localStorage.getItem('ff_token');
+    if (!token) return;
+    if (isAuthenticated && user) return;
+    fetch('http://localhost:4000/api/me', { headers: { Authorization: `Bearer ${token}` } })
+      .then(async (r) => {
+        if (!r.ok) return;
+        const j = await r.json();
+        // populate zustand store directly
+        try { useFinanceStore.setState({ user: j, isAuthenticated: true }); } catch (e) { /* ignore */ }
+      })
+      .catch(() => { });
+  }, [isAuthenticated, user]);
 
   const toggleDarkMode = () => {
     setIsDarkMode(!isDarkMode);
@@ -55,6 +76,12 @@ function App() {
     switch (currentView) {
       case 'dashboard':
         return <Dashboard />;
+      case 'login':
+        return <Login />;
+      case 'register':
+        return <Register />;
+      case 'forgot':
+        return <ForgotPassword />;
       case 'accounts':
         return <Accounts />;
       case 'transactions':
@@ -65,6 +92,8 @@ function App() {
         return <Goals />;
       case 'reports':
         return <Reports />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Dashboard />;
     }
@@ -102,7 +131,7 @@ function App() {
       </nav>
 
       <div className="p-4 border-t space-y-2">
-        <div className="flex items-center gap-3 px-4 py-2">
+        {/* <div className="flex items-center gap-3 px-4 py-2">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
             {user?.name?.charAt(0).toUpperCase() || 'U'}
           </div>
@@ -110,7 +139,7 @@ function App() {
             <p className="text-sm font-medium truncate">{user?.name || 'Usuario'}</p>
             <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
           </div>
-        </div>
+        </div> */}
 
         <div className="flex gap-2">
           <Button
@@ -125,7 +154,7 @@ function App() {
             variant="ghost"
             size="icon"
             className="flex-1"
-            onClick={logout}
+            onClick={() => { logout(); try { window.location.reload(); } catch (e) { /* ignore */ } }}
           >
             <LogOut className="h-4 w-4" />
           </Button>
@@ -133,6 +162,12 @@ function App() {
       </div>
     </div>
   );
+
+  const isLoggedIn = isAuthenticated || !!localStorage.getItem('ff_token');
+
+  if (!isLoggedIn) {
+    return <AuthPage />;
+  }
 
   return (
     <div className={`min-h-screen bg-background ${isDarkMode ? 'dark' : ''}`}>
@@ -190,10 +225,10 @@ function App() {
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <Button variant="outline" size="icon">
+              {/* <Button variant="outline" size="icon">
                 <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon">
+              </Button> */}
+              <Button variant="outline" size="icon" onClick={() => setCurrentView('profile')}>
                 <User className="h-4 w-4" />
               </Button>
               <Button onClick={() => setIsAddTransactionOpen(true)}>

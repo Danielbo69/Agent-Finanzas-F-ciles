@@ -338,6 +338,8 @@ export const useFinanceStore = create<FinanceState>()(
         },
         
         logout: () => {
+          // Remove persisted auth token from localStorage and reset store state
+          try { localStorage.removeItem('ff_token'); } catch (e) { /* ignore */ }
           set({
             user: null,
             isAuthenticated: false,

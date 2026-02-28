@@ -26,7 +26,9 @@ export default function Dashboard() {
     getBudgetStatus,
     accounts,
     categories,
-    transactions 
+    transactions,
+    user,
+    logout
   } = useFinanceStore();
 
   const kpis = getKPIs();
@@ -76,6 +78,13 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* User header: show name and logout */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">Bienvenido</p>
+          <h3 className="text-lg font-semibold">{user?.name || user?.username || 'Usuario'}</h3>
+        </div>
+      </div>
       {/* KPIs Principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">

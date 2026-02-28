@@ -6,8 +6,24 @@ module.exports = (prisma) => {
 
   // Protected route example: get current user
   router.get('/me', auth, async (req, res) => {
-    const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { id: true, email: true, name: true } });
+    const user = await prisma.user.findUnique({ where: { id: req.user.id }, select: { id: true, email: true, name: true, username: true } });
     res.json(user);
+  });
+
+  // Update current user profile
+  router.patch('/me', auth, async (req, res) => {
+    const { name, email, username } = req.body;
+    try {
+      const updated = await prisma.user.update({
+        where: { id: req.user.id },
+        data: { name, email, username },
+        select: { id: true, email: true, name: true, username: true }
+      });
+      res.json(updated);
+    } catch (err) {
+      console.error('Error updating user', err);
+      res.status(500).json({ error: 'Unable to update user' });
+    }
   });
 
   // Transactions
