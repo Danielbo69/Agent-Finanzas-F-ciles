@@ -15,10 +15,12 @@ import {
   Calendar
 } from 'lucide-react';
 import { format } from 'date-fns';
-import type { TransactionType } from '@/types';
+import type { TransactionType, Transaction } from '@/types';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 
 export default function Transactions() {
+  const [detailTx, setDetailTx] = useState<Transaction | null>(null);
   const { 
     transactions, 
     accounts, 
@@ -252,38 +254,38 @@ export default function Transactions() {
                     transaction.isVoided && "opacity-50 bg-gray-100"
                   )}
                 >
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-4 min-w-0">
                     <div className={cn(
-                      "w-10 h-10 rounded-full flex items-center justify-center",
+                      "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
                       transaction.type === 'income' ? 'bg-green-100' :
                       transaction.type === 'expense' ? 'bg-red-100' :
                       transaction.type === 'credit_card_payment' ? 'bg-orange-100' : 'bg-blue-100'
                     )}>
                       {getTransactionIcon(transaction.type)}
                     </div>
-                    <div>
-                      <p className={cn("font-medium", transaction.isVoided && "line-through")}>
+                    <div className="min-w-0">
+                      <p className={cn("font-medium truncate", transaction.isVoided && "line-through")}>
                         {transaction.description || getCategoryName(transaction.categoryId)}
                       </p>
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground truncate">
                         <span 
-                          className="w-2 h-2 rounded-full"
+                          className="w-2 h-2 rounded-full flex-shrink-0"
                           style={{ backgroundColor: getCategoryColor(transaction.categoryId) }}
                         />
-                        {getCategoryName(transaction.categoryId)}
-                        <span>•</span>
-                        {getAccountName(transaction.fromAccountId)}
+                        <span className="truncate">{getCategoryName(transaction.categoryId)}</span>
+                        <span className="mx-1">•</span>
+                        <span className="truncate">{getAccountName(transaction.fromAccountId)}</span>
                         {transaction.toAccountId && (
                           <>
-                            <span>→</span>
-                            {getAccountName(transaction.toAccountId)}
+                            <span className="mx-1">→</span>
+                            <span className="truncate">{getAccountName(transaction.toAccountId)}</span>
                           </>
                         )}
                       </div>
                     </div>
                   </div>
                   
-                  <div className="text-right">
+                  <div className="text-right min-w-[110px] ml-4 flex-shrink-0">
                     <p className={cn(
                       "font-semibold",
                       transaction.type === 'income' ? 'text-green-600' :
@@ -291,8 +293,7 @@ export default function Transactions() {
                       transaction.type === 'credit_card_payment' ? 'text-orange-600' : 'text-blue-600',
                       transaction.isVoided && "line-through"
                     )}>
-                      {transaction.type === 'income' ? '+' : 
-                       transaction.type === 'expense' || transaction.type === 'credit_card_payment' ? '-' : ''}
+                      {transaction.type === 'income' ? '+' : transaction.type === 'expense' || transaction.type === 'credit_card_payment' ? '-' : ''}
                       {formatCurrency(transaction.amount)}
                     </p>
                     <p className="text-xs text-muted-foreground">
@@ -301,6 +302,12 @@ export default function Transactions() {
                     {transaction.isVoided && (
                       <p className="text-xs text-red-600 font-medium">Anulado</p>
                     )}
+                    {/* Mobile: show details button to open full info in a dialog */}
+                    <div className="mt-2 md:hidden">
+                      <Button variant="outline" size="sm" onClick={() => setDetailTx(transaction)}>
+                        Detalles
+                      </Button>
+                    </div>
                   </div>
                   
                   {!transaction.isVoided && (
@@ -318,6 +325,52 @@ export default function Transactions() {
                 </div>
               ))
             )}
+
+              {/* Details dialog (mobile) */}
+              <Dialog open={detailTx !== null} onOpenChange={(open) => { if (!open) setDetailTx(null); }}>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Detalle</DialogTitle>
+                  </DialogHeader>
+                  {detailTx && (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-muted-foreground">Descripción</p>
+                          <p className="font-medium">{detailTx.description || getCategoryName(detailTx.categoryId)}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">{formatCurrency(detailTx.amount)}</p>
+                          <p className="text-xs text-muted-foreground">{format(new Date(detailTx.date), 'dd/MM/yyyy HH:mm')}</p>
+                        </div>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Categoría</p>
+                        <p>{getCategoryName(detailTx.categoryId)}</p>
+                      </div>
+
+                      <div>
+                        <p className="text-sm text-muted-foreground">Cuenta origen</p>
+                        <p>{getAccountName(detailTx.fromAccountId)}</p>
+                      </div>
+
+                      {detailTx.toAccountId && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Cuenta destino</p>
+                          <p>{getAccountName(detailTx.toAccountId)}</p>
+                        </div>
+                      )}
+
+                      <div className="flex justify-end">
+                        <DialogClose asChild>
+                          <Button>Cerrar</Button>
+                        </DialogClose>
+                      </div>
+                    </div>
+                  )}
+                </DialogContent>
+              </Dialog>
           </div>
         </CardContent>
       </Card>
