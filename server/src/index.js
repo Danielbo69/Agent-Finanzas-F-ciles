@@ -8,7 +8,28 @@ const apiRoutes = require('./routes/api');
 const prisma = new PrismaClient();
 const app = express();
 
-app.use(cors());
+// Restrict CORS to development origins and the temporary deployed domain used for testing
+const allowedOrigins = [
+  'http://localhost:5173', // Vite default
+  'http://localhost:3000',
+  'http://localhost:4000',
+  'http://127.0.0.1:5173',
+  'https://agent-finanzas.onrender.com'
+];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // allow requests with no origin (like curl, mobile apps, server-to-server)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    return callback(new Error('CORS policy: Origin not allowed'));
+  },
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/auth', authRoutes(prisma));
